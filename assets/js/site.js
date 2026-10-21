@@ -22,7 +22,7 @@ const header = `
 
 const footer = `
   <footer class="site-footer"><div class="wrap footer-top"><div class="footer-brand"><img src="${siteUrl('assets/img/logo-white.png')}" width="116" height="66" alt="Rockwell"><p>Designing, manufacturing, erecting and commissioning material handling equipment from Bahadurgarh, Haryana since 1985.</p></div><div><h2>Company</h2><a href="${siteUrl('about.html')}">About</a><a href="${siteUrl('manufacturing.html')}">Manufacturing</a><a href="${siteUrl('projects.html')}">Projects</a><a href="${siteUrl('clients.html')}">Clients</a><a href="${siteUrl('services.html')}">Services</a></div><div><h2>Product range</h2><a href="${siteUrl('products.html')}">All products</a><a href="${siteUrl('products/double-girder-eot.html')}">E.O.T. cranes</a><a href="${siteUrl('products/goliath-gantry-crane.html')}">Goliath / gantry cranes</a><a href="${siteUrl('products/electric-wire-rope-hoist.html')}">Hoists</a><a href="${siteUrl('products/gates-hydro-mechanical.html')}">Gates &amp; hydro-mechanical</a></div><div class="footer-contact"><h2>Get in touch</h2><p>Plot No. 14, Sector-16, HSIIDC,<br>Bahadurgarh - 124507,<br>Distt. Jhajjar, Haryana, India</p><a href="tel:+919810005456">+91 98100 05456</a><a href="tel:+918373937858">+91 83739 37858</a><a href="tel:+919871294625">+91 98712 94625</a><a href="mailto:vijaygupta@rockwellcranes.com">vijaygupta@rockwellcranes.com</a><a href="mailto:info@rockwellcranes.com">info@rockwellcranes.com</a></div></div><div class="wrap footer-bottom"><span>Rockwell Hoisto Cranes (Pvt.) Ltd. · Est. 1985</span><a href="${siteUrl('sitemap.html')}">Sitemap</a><a href="#main">Back to top</a></div></footer>
-  <a class="whatsapp" href="https://wa.me/919810005456" aria-label="Contact Rockwell on WhatsApp"><span aria-hidden="true">W</span></a>`;
+  <a class="whatsapp" href="https://wa.me/919810005456" aria-label="Contact Rockwell on WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.5 3.5A11.9 11.9 0 0 0 1.8 17.7L.2 23.5l6-1.6A11.9 11.9 0 0 0 20.5 3.5ZM12 21a9.9 9.9 0 0 1-5-1.4l-.4-.2-3.5.9.9-3.4-.2-.4A9.9 9.9 0 1 1 12 21Zm5.4-7.4c-.3-.2-1.7-.9-2-.9s-.5-.2-.7.2-.8.9-1 .1-.4-.2-.7-.1a7.9 7.9 0 0 1-3.8-3.3c-.3-.5.3-.5.8-1.6.1-.2 0-.4 0-.6L9.1 5.5c-.3-.7-.6-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.8s1.2 3.2 1.4 3.4c.2.2 2.4 3.7 5.8 5.1 2.2.9 3 .9 4.1.8 1.2-.2 1.7-.8 2-1.5.2-.7.2-1.3.2-1.5-.1-.2-.3-.3-.6-.5Z"/></svg></a>`;
 
 document.querySelector('[data-site-header]')?.insertAdjacentHTML('afterbegin', header);
 document.querySelector('[data-site-footer]')?.insertAdjacentHTML('afterbegin', footer);
@@ -45,6 +45,66 @@ const productsButton = document.querySelector('.products-nav > button');
 const isProductsPage = currentPage === 'products.html' || location.pathname.includes('/products/');
 if (isProductsPage) productsButton?.setAttribute('aria-current', 'page');
 else productsButton?.removeAttribute('aria-current');
+
+const pageHero = document.querySelector('.inner-hero-copy, .product-hero-content');
+if (pageHero) {
+  const heading = pageHero.querySelector('h1');
+  const trail = document.createElement('nav');
+  trail.className = 'breadcrumbs';
+  trail.setAttribute('aria-label', 'Breadcrumb');
+  const homeCrumb = document.createElement('a');
+  homeCrumb.href = siteUrl('index.html');
+  homeCrumb.textContent = 'Home';
+  trail.append(homeCrumb);
+  if (isProductsPage) {
+    const productsCrumb = document.createElement('a');
+    productsCrumb.href = siteUrl('products.html');
+    productsCrumb.textContent = 'Products';
+    trail.append(productsCrumb);
+  }
+  const currentCrumb = document.createElement('span');
+  currentCrumb.setAttribute('aria-current', 'page');
+  currentCrumb.textContent = heading?.textContent.trim() || 'Page';
+  trail.append(currentCrumb);
+  pageHero.prepend(trail);
+}
+
+const progress = document.createElement('div');
+progress.className = 'scroll-progress';
+progress.setAttribute('aria-hidden', 'true');
+document.body.append(progress);
+let progressQueued = false;
+const updateProgress = () => {
+  const available = document.documentElement.scrollHeight - window.innerHeight;
+  progress.style.transform = `scaleX(${available > 0 ? Math.min(1, window.scrollY / available) : 0})`;
+  progressQueued = false;
+};
+window.addEventListener('scroll', () => {
+  if (!progressQueued) {
+    progressQueued = true;
+    window.requestAnimationFrame(updateProgress);
+  }
+}, {passive:true});
+updateProgress();
+
+const heroFacts = {
+  'about.html':['1,500+','Installations since 1985'],
+  'clients.html':['Across India','Public and private sectors'],
+  'contact.html':['Bahadurgarh','Works and office'],
+  'enquiry.html':['17','Product lines'],
+  'manufacturing.html':['Since 1985','Manufacturing in Haryana'],
+  'products.html':['Up to 150 t','Crane capacity'],
+  'projects.html':['180 t SWL','Featured gantry project'],
+  'services.html':['Design to commissioning','Project support'],
+  'sitemap.html':['17','Product lines']
+};
+const fact = heroFacts[currentPage];
+if (pageHero && fact) {
+  const factBlock = document.createElement('aside');
+  factBlock.className = 'inner-hero-fact';
+  factBlock.innerHTML = `<strong>${fact[0]}</strong><span>${fact[1]}</span>`;
+  pageHero.append(factBlock);
+}
 const productMenuWrap = document.querySelector('.products-nav');
 const productMega = document.querySelector('#product-mega');
 const setProductsOpen = open => {
