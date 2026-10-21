@@ -118,20 +118,84 @@
         .to(load,{opacity:1,duration:.2},'<');
       document.documentElement.classList.add('gsap-ready');
 
-      const process = document.querySelector('.process-section');
-      const list = document.querySelector('.process-list');
-      const readout = document.querySelector('.trace-readout');
-      const stations = [...document.querySelectorAll('.process-station')];
-      if (process && list && stations.length) {
-        ScrollTrigger.create({trigger:process,start:'top top+=110',end:'bottom bottom',onUpdate:self=>{
-          const progressValue=`${self.progress*100}%`;
-          list.style.setProperty('--sequence-progress',progressValue);
-          document.querySelector('.load-trace')?.style.setProperty('--sequence-progress',progressValue);
-          const step=Math.min(stations.length,Math.max(1,Math.ceil(self.progress*stations.length)));
-          if(readout)readout.textContent=`${String(step).padStart(2,'0')} / ${String(stations.length).padStart(2,'0')}`;
+    }
+
+    const process = document.querySelector('.process-section');
+    const processGrid = process?.querySelector('.process-grid');
+    const viewport = process?.querySelector('[data-process-viewport]');
+    const list = process?.querySelector('.process-list');
+    const stations = [...(process?.querySelectorAll('.process-station') || [])];
+    const readout = process?.querySelector('.trace-readout');
+    const progress = process?.querySelector('.process-progress');
+    const progressFill = progress?.querySelector('i');
+    let activeStation = -1;
+    let processTrigger = null;
+    const drawnStations = new WeakSet();
+    const setActiveStation = index => {
+      const next = Math.max(0,Math.min(stations.length - 1,index));
+      if (next === activeStation) return;
+      activeStation = next;
+      stations.forEach((station,i)=>{station.classList.toggle('is-current',i===next);station.setAttribute('aria-current',i===next?'step':'false');});
+      const current = next + 1;
+      if (readout) readout.textContent = `${String(current).padStart(2,'0')} / ${String(stations.length).padStart(2,'0')}`;
+      progress?.setAttribute('aria-valuenow',String(current));
+      if (progressFill) progressFill.style.transform = `scaleX(${stations.length > 1 ? next/(stations.length-1) : 1})`;
+      if (!gsapReady || drawnStations.has(stations[next])) return;
+      drawnStations.add(stations[next]);
+      const strokes = [...stations[next].querySelectorAll('.station-art svg path')];
+      strokes.forEach((path,i)=>{
+        try {
+          const length = path.getTotalLength();
+          gsap.set(path,{strokeDasharray:length,strokeDashoffset:length});
+          gsap.to(path,{strokeDashoffset:0,duration:.72,delay:Math.min(i*.025,.2),ease:'power2.out',overwrite:true});
+        } catch(error) { /* Unsupported SVG geometry stays visible as a static drawing. */ }
+      });
+    };
+    if (process && processGrid && viewport && list && stations.length) {
+      const canPin = gsapReady && window.matchMedia('(min-width: 64rem) and (prefers-reduced-motion: no-preference)').matches;
+      if (canPin) {
+        process.classList.add('has-scroll-story');
+        const distance = () => Math.max(list.scrollWidth - viewport.clientWidth,1);
+        const railTween = gsap.to(list,{x:()=>-distance(),ease:'none',scrollTrigger:{
+          id:'home-process-story',trigger:process,start:'top top+=78',end:()=>`+=${distance()}`,pin:processGrid,scrub:.7,invalidateOnRefresh:true,
+          onUpdate:self=>setActiveStation(Math.round(self.progress*(stations.length-1)))
         }});
-        stations.forEach((station,index)=>ScrollTrigger.create({trigger:station,start:'top 62%',end:'bottom 38%',onToggle:self=>station.classList.toggle('is-active',self.isActive),onEnter:()=>{if(readout)readout.textContent=`${String(index+1).padStart(2,'0')} / 08`},onEnterBack:()=>{if(readout)readout.textContent=`${String(index+1).padStart(2,'0')} / 08`}}));
+        processTrigger = railTween.scrollTrigger;
+        ScrollTrigger.refresh();
+      } else {
+        setActiveStation(0);
+        let ticking = false;
+        viewport.addEventListener('scroll',()=>{
+          if(ticking)return;ticking=true;
+          requestAnimationFrame(()=>{
+            ticking=false;
+            const center=viewport.getBoundingClientRect().left+viewport.clientWidth/2;
+            let nearest=0,best=Infinity;
+            stations.forEach((station,i)=>{const r=station.getBoundingClientRect();const d=Math.abs(r.left+r.width/2-center);if(d<best){best=d;nearest=i;}});
+            setActiveStation(nearest);
+          });
+        },{passive:true});
       }
+      process.querySelectorAll('[data-process-step]').forEach(button=>button.addEventListener('click',()=>{
+        const target=Math.max(0,Math.min(stations.length-1,activeStation+Number(button.dataset.processStep)));
+        if(processTrigger){
+          const ratio=stations.length>1?target/(stations.length-1):0;
+          window.scrollTo({top:processTrigger.start+ratio*(processTrigger.end-processTrigger.start),behavior:'smooth'});
+        } else if(viewport.scrollWidth>viewport.clientWidth){
+          viewport.scrollTo({left:stations[target].offsetLeft-list.offsetLeft,behavior:'smooth'});
+        } else stations[target].scrollIntoView({behavior:'smooth',block:'center'});
+      }));
+      viewport.addEventListener('keydown',event=>{
+        if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
+        event.preventDefault();
+        const target=Math.max(0,Math.min(stations.length-1,activeStation+(event.key==='ArrowRight'?1:-1)));
+        if(processTrigger){
+          const ratio=stations.length>1?target/(stations.length-1):0;
+          window.scrollTo({top:processTrigger.start+ratio*(processTrigger.end-processTrigger.start),behavior:'smooth'});
+        } else if(viewport.scrollWidth>viewport.clientWidth){
+          viewport.scrollTo({left:stations[target].offsetLeft-list.offsetLeft,behavior:'smooth'});
+        } else stations[target].scrollIntoView({behavior:'smooth',block:'center'});
+      });
     }
   } catch (error) {
     console.error('home.js initialization failed', error);
