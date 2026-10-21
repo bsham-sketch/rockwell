@@ -155,7 +155,7 @@
       const stationObserver = new IntersectionObserver(entries=>{
         const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
         if(visible)setActiveStation(stations.indexOf(visible.target));
-      },{root:null,rootMargin:'-18% 0px -32% 0px',threshold:[.15,.4,.7]});
+      },{root:viewport,rootMargin:'0px',threshold:[.2,.45,.7]});
       stations.forEach(station=>stationObserver.observe(station));
       const goToStation=target=>{
         if(viewport.scrollWidth>viewport.clientWidth){
