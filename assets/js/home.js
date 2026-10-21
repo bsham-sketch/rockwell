@@ -139,6 +139,7 @@
       if (readout) readout.textContent = `${String(current).padStart(2,'0')} / ${String(stations.length).padStart(2,'0')}`;
       progress?.setAttribute('aria-valuenow',String(current));
       if (progressFill) progressFill.style.transform = `scaleX(${stations.length > 1 ? next/(stations.length-1) : 1})`;
+      if (stations[next].querySelector('.station-art.fab-sc')) return;
       if (!gsapReady || drawnStations.has(stations[next])) return;
       drawnStations.add(stations[next]);
       const strokes = [...stations[next].querySelectorAll('.station-art svg path')];
