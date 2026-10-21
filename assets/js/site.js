@@ -1,3 +1,5 @@
+(() => {
+  try {
 const productLinks = [
   ['Cranes', [['Double Girder E.O.T. Crane','products/double-girder-eot.html'],['Single Girder E.O.T. Crane','products/single-girder-eot.html'],['Double Girder H.O.T. Crane','products/double-girder-hot.html'],['Single Girder H.O.T. Crane','products/single-girder-hot.html'],['Goliath / Gantry Crane','products/goliath-gantry-crane.html'],['Manual Gantry Crane','products/manual-gantry-crane.html'],['Hydraulic Jib Crane','products/hydraulic-jib-crane.html'],['Manual Jib Crane','products/manual-jib-crane.html']]],
   ['Hoists', [['Electric Wire Rope Hoist','products/electric-wire-rope-hoist.html'],['Chain Pulley Block','products/chain-pulley-block.html']]],
@@ -40,6 +42,9 @@ menuButton?.addEventListener('click', () => {
   document.body.classList.toggle('menu-open', !open);
 });
 const productsButton = document.querySelector('.products-nav > button');
+const isProductsPage = currentPage === 'products.html' || location.pathname.includes('/products/');
+if (isProductsPage) productsButton?.setAttribute('aria-current', 'page');
+else productsButton?.removeAttribute('aria-current');
 const productMenuWrap = document.querySelector('.products-nav');
 const productMega = document.querySelector('#product-mega');
 const setProductsOpen = open => {
@@ -69,3 +74,7 @@ document.addEventListener('keydown', event => {
     else if (productsOpen) productsButton?.focus();
   }
 });
+  } catch (error) {
+    console.error('site.js initialization failed', error);
+  }
+})();

@@ -1,3 +1,5 @@
+(() => {
+  try {
 const form = document.querySelector('#quote-form');
 const params = new URLSearchParams(location.search);
 if (form) {
@@ -47,3 +49,7 @@ if (form) {
     location.href = `mailto:vijaygupta@rockwellcranes.com?subject=${encodeURIComponent('Enquiry for Rockwell Hoisto Cranes')}&body=${encodeURIComponent(lines.join('\n'))}`;
   });
 }
+  } catch (error) {
+    console.error('enquiry.js initialization failed', error);
+  }
+})();

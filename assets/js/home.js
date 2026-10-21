@@ -1,3 +1,5 @@
+(() => {
+  try {
 const rail = document.querySelector('.product-rail');
 document.querySelectorAll('[data-scroll]').forEach(button => button.addEventListener('click', () => {
   rail?.scrollBy({left: Number(button.dataset.scroll) * rail.clientWidth * .8, behavior: 'smooth'});
@@ -48,3 +50,7 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
   }), {threshold:.45});
   counters.forEach(el => observer.observe(el));
 }
+  } catch (error) {
+    console.error('home.js initialization failed', error);
+  }
+})();

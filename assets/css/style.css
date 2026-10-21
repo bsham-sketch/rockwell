@@ -32,8 +32,17 @@
 @media(max-width:820px){.inner-hero{min-height:430px}.editorial-grid{grid-template-columns:1fr;gap:35px}.editorial-image{height:380px}.catalog-grid{grid-template-columns:repeat(2,1fr)}.inspection-list{grid-template-columns:repeat(3,1fr)}.capability-grid,.assurance-grid{grid-template-columns:repeat(2,1fr)}.project-row{grid-template-columns:130px 1fr}.project-row>.mono{grid-column:2}.contact-layout,.enquiry-layout{grid-template-columns:1fr;gap:40px}.map-frame{height:430px}.sitemap-grid{gap:5%}}
 @media(max-width:560px){.inner-hero{min-height:420px}.inner-hero-copy{padding-top:70px;padding-bottom:40px}.inner-hero h1{font-size:clamp(3rem,14vw,4.5rem)}.editorial-grid h2{font-size:2.8rem}.editorial-image{height:280px}.inspection-list{grid-template-columns:repeat(2,1fr)}.range-list{columns:1}.catalog-grid{grid-template-columns:1fr}.catalog-card{min-height:360px}.catalog-img{height:210px}.manufacturing-station{grid-template-columns:42px 1fr;gap:12px;padding:24px 0}.manufacturing-station ul{display:grid;gap:4px}.capability-grid,.assurance-grid{grid-template-columns:1fr}.project-row{grid-template-columns:1fr;gap:12px;padding:22px 0}.project-row>.mono{grid-column:1}.project-row>strong{font-size:3.5rem}.sector-grid,.service-grid{grid-template-columns:1fr}.service-card li{font-size:.72rem}.map-frame{height:320px}.form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}.sitemap-grid{grid-template-columns:1fr;gap:38px}}
 
-.crane-art{animation:none}
-@media(prefers-reduced-motion:reduce){.crane-svg .crab,.crane-svg .load,.scroll-cue span{animation:none!important}}
-/* Keep the viewport and content steady; the header remains pinned while scrolling. */
-.reveal-line,.crane-art,.crane-svg .crab,.crane-svg .load,.scroll-cue span{animation:none!important}
-.button:hover,.product-card:hover,.whatsapp:hover,.catalog-card:hover{transform:none}
+
+/* Current page indicator is stronger than the hover underline. */
+.primary-nav>a[aria-current="page"],.products-nav>button[aria-current="page"]{color:#765900;font-weight:800;text-decoration:underline;text-decoration-color:var(--signal);text-decoration-thickness:3px;text-underline-offset:7px}
+
+/* Instant pointer dot; the system cursor stays available if the script cannot start. */
+@media (pointer:fine){
+  html.cursor-ready,html.cursor-ready body{cursor:none}
+  html.cursor-ready input,html.cursor-ready textarea,html.cursor-ready select,html.cursor-ready [contenteditable="true"]{cursor:text}
+  html.cursor-ready.cursor-native-control,html.cursor-ready.cursor-native-control body{cursor:auto}
+  .cursor-dot{position:fixed;z-index:10000;left:0;top:0;width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 0 1px #16202b;pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,-50%);transition:opacity .12s ease,visibility .12s ease,width .12s ease,height .12s ease}
+  .cursor-dot.is-visible{opacity:1;visibility:visible}
+  .cursor-dot.is-hovering{width:16px;height:16px}
+  .cursor-native-control .cursor-dot{opacity:0;visibility:hidden}
+}
