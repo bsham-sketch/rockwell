@@ -105,6 +105,34 @@ if (pageHero && fact) {
   factBlock.innerHTML = `<strong>${fact[0]}</strong><span>${fact[1]}</span>`;
   pageHero.append(factBlock);
 }
+
+const productImageBySlug = {
+  'chain-pulley-block':'dwg-wire-rope-hoist.png','crab-winch':'crab-winch.jpg','diesel-winch':'diesel-winch.jpg',
+  'double-girder-eot':'dwg-double-girder-eot.png','double-girder-hot':'dwg-double-girder-hot.png',
+  'electric-wire-rope-hoist':'wire-rope-hoist.jpg','gates-hydro-mechanical':'hydro-spillway.jpg',
+  'goliath-gantry-crane':'install-goliath-dam.jpg','hydraulic-jib-crane':'hydraulic-jib-crane.jpg',
+  'hydraulic-lifting-table':'hydraulic-lifting-table.jpg','hydraulic-stacker':'hydraulic-stacker.jpg',
+  'manual-gantry-crane':'manual-gantry-crane.jpg','manual-jib-crane':'manual-jib-crane.jpg',
+  'pallet-truck':'pallet-truck.jpg','power-electric-winch':'crab-winch-gold.jpg',
+  'single-girder-eot':'single-girder-eot.jpg','single-girder-hot':'dwg-single-girder-hot.png'
+};
+const productEntries = productLinks.flatMap(([group, links]) => links.map(([name,url]) => ({
+  group, name, url, slug:url.split('/').pop().replace('.html','')
+})));
+const productIndex = productEntries.findIndex(product => product.slug === currentPage.replace('.html',''));
+if (productIndex >= 0) {
+  const product = productEntries[productIndex];
+  const sameFamily = productEntries.filter(item => item.group === product.group && item.slug !== product.slug).slice(0,2);
+  if (!sameFamily.length && product.slug === 'gates-hydro-mechanical') {
+    sameFamily.push(productEntries.find(item => item.slug === 'goliath-gantry-crane'));
+  }
+  const galleryItems = [{...product, image:productImageBySlug[product.slug]}, ...sameFamily.map(item => ({...item,image:productImageBySlug[item.slug]}))];
+  if (product.group === 'Hydro-mechanical') galleryItems.push({...product,image:'install-gates.jpg',name:'Gate installation'});
+  const gallery = document.createElement('section');
+  gallery.className = 'product-gallery-section section';
+  gallery.innerHTML = `<div class="wrap"><p class="eyebrow">From the reference / ${product.group}</p><h2>Equipment in <em>the works.</em></h2><div class="product-gallery">${galleryItems.map(item => `<figure><img src="${siteUrl(`assets/img/${item.image}`)}" alt="${item.name}" width="600" height="400" loading="lazy" decoding="async"><figcaption>${item.name}</figcaption></figure>`).join('')}</div><div class="related-products"><p class="eyebrow">Related products</p><div>${sameFamily.map(item => `<a href="${siteUrl(item.url)}">${item.name}<span aria-hidden="true"> ↗</span></a>`).join('')}</div></div><nav class="product-sequence" aria-label="Product pages"><a href="${siteUrl(productEntries[(productIndex + productEntries.length - 1) % productEntries.length].url)}">← Previous product</a><a href="${siteUrl(productEntries[(productIndex + 1) % productEntries.length].url)}">Next product →</a></nav></div>`;
+  document.querySelector('.product-overview')?.insertAdjacentElement('afterend',gallery);
+}
 const productMenuWrap = document.querySelector('.products-nav');
 const productMega = document.querySelector('#product-mega');
 const setProductsOpen = open => {
