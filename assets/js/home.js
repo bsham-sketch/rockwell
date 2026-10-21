@@ -97,26 +97,25 @@
     const load = document.querySelector('.crane-load');
     if (gsapReady && hero && bridge && trolley && hoist && load) {
       gsap.registerPlugin(ScrollTrigger);
-      const bridgePosition = {x:0};
       const trolleyPosition = {x:170};
-      const hookPosition = {y:0};
+      const hookPosition = {y:78};
       const loadPosition = {y:178};
       const draw = (element, position, axis) => { const x = axis === 'x' || axis === 'both' ? position.x : 0; const y = axis === 'y' || axis === 'both' ? position.y : 0; element.setAttribute('transform', `translate(${x} ${y})`); };
+      draw(hoist,hookPosition,'y');
+      draw(load,{x:-26,y:loadPosition.y},'both');
+      gsap.set(load,{opacity:1});
       const timeline = gsap.timeline({repeat:-1,repeatDelay:.45,defaults:{ease:'power2.inOut'}});
       timeline
-        .to(trolleyPosition,{x:205,duration:1.3,onUpdate:()=>draw(trolley,trolleyPosition,'x')})
-        .to(hookPosition,{y:78,duration:1.1,onUpdate:()=>draw(hoist,hookPosition,'y')})
-        .to(load,{opacity:1,duration:.18})
-        .to(hookPosition,{y:0,duration:.8,onUpdate:()=>draw(hoist,hookPosition,'y')})
-        .to(loadPosition,{y:95,duration:.8,onUpdate:()=>draw(load,{x:-26,y:loadPosition.y},'both')},'<')
-        .to(bridgePosition,{x:-22,duration:1,onUpdate:()=>draw(bridge,bridgePosition,'x')})
-        .to(trolleyPosition,{x:330,duration:2,onUpdate:()=>draw(trolley,trolleyPosition,'x')},'<')
+        .to(hookPosition,{y:0,duration:.95,onUpdate:()=>draw(hoist,hookPosition,'y')})
+        .to(loadPosition,{y:95,duration:.95,onUpdate:()=>draw(load,{x:-26,y:loadPosition.y},'both')},'<')
+        .to(trolleyPosition,{x:340,duration:2.5,onUpdate:()=>draw(trolley,trolleyPosition,'x')})
         .to(hookPosition,{y:78,duration:1.1,onUpdate:()=>draw(hoist,hookPosition,'y')})
         .to(loadPosition,{y:178,duration:.85,onUpdate:()=>draw(load,{x:-26,y:loadPosition.y},'both')},'<')
         .to(load,{opacity:0,duration:.2})
         .to(hookPosition,{y:0,duration:.8,onUpdate:()=>draw(hoist,hookPosition,'y')})
         .to(trolleyPosition,{x:170,duration:1.6,onUpdate:()=>draw(trolley,trolleyPosition,'x')})
-        .to(bridgePosition,{x:0,duration:1,onUpdate:()=>draw(bridge,bridgePosition,'x')},'<');
+        .to(hookPosition,{y:78,duration:.8,onUpdate:()=>draw(hoist,hookPosition,'y')})
+        .to(load,{opacity:1,duration:.2},'<');
       document.documentElement.classList.add('gsap-ready');
 
       const process = document.querySelector('.process-section');
