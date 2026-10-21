@@ -283,9 +283,9 @@ html:not(.gsap-ready) .crane-load{animation:payload-fallback 9s cubic-bezier(.45
 .process-section.has-scroll-story .process-intro{flex:none}
 .process-section.has-scroll-story .process-viewport{flex:1;min-height:0;overflow:hidden}
 .process-section.has-scroll-story .process-list{display:flex;gap:16px;width:max-content;height:100%;padding:0 1px 8px}
-.process-section.has-scroll-story .process-station{flex:0 0 clamp(410px,32vw,535px);height:100%;min-height:0;display:grid;grid-template-rows:minmax(125px,38%) minmax(0,1fr)}
-.process-section.has-scroll-story .station-art{grid-row:1;height:auto;min-height:0;flex:none}
-.process-section.has-scroll-story .station-copy{grid-row:2;min-height:0;overflow-y:auto;padding:clamp(14px,2vh,22px);gap:8px}
+.process-section.has-scroll-story .process-station{flex:0 0 clamp(410px,32vw,535px);height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(125px,38%) minmax(0,1fr)}
+.process-section.has-scroll-story .station-art{grid-column:1;grid-row:1;height:auto;min-height:0;flex:none}
+.process-section.has-scroll-story .station-copy{grid-column:1;grid-row:2;min-width:0;min-height:0;overflow-y:auto;padding:clamp(14px,2vh,22px);gap:8px}
 .process-section.has-scroll-story .process-station p:last-child{font-size:.88rem;line-height:1.5}
 @media(max-width:1023px){.process-section .process-grid{padding:75px 0 50px}.process-section .process-list{display:flex;overflow:visible}.process-viewport{overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x mandatory;scrollbar-color:#f2b705 #25333e;padding-bottom:10px}.process-section .process-station{flex:0 0 clamp(290px,78vw,440px);min-height:410px;scroll-snap-align:start}.process-section .station-art{height:210px}.process-controls{margin-top:4px}}
 @media(max-width:600px){.process-section .process-grid{gap:22px;padding:64px 0 36px}.process-section .process-intro{grid-template-columns:1fr;row-gap:12px}.process-section .process-intro>.eyebrow,.process-section .process-intro>h2,.process-section .process-intro>p:not(.eyebrow),.process-section .process-intro>.button{grid-column:1;grid-row:auto}.process-section .process-intro>h2{font-size:clamp(2.5rem,12vw,4rem)}.process-section .process-intro>p:not(.eyebrow){max-width:48ch}.process-section .process-station{flex-basis:min(84vw,370px)}.process-controls{grid-template-columns:62px minmax(0,1fr) auto;gap:11px}.process-nav{gap:5px}.process-nav button{width:36px;height:36px}}
