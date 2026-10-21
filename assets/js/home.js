@@ -129,7 +129,6 @@
     const progress = process?.querySelector('.process-progress');
     const progressFill = progress?.querySelector('i');
     let activeStation = -1;
-    let processTrigger = null;
     const drawnStations = new WeakSet();
     const setActiveStation = index => {
       const next = Math.max(0,Math.min(stations.length - 1,index));
@@ -152,49 +151,26 @@
       });
     };
     if (process && processGrid && viewport && list && stations.length) {
-      const canPin = gsapReady && window.matchMedia('(min-width: 64rem) and (prefers-reduced-motion: no-preference)').matches;
-      if (canPin) {
-        process.classList.add('has-scroll-story');
-        const distance = () => Math.max(list.scrollWidth - viewport.clientWidth,1);
-        const railTween = gsap.to(list,{x:()=>-distance(),ease:'none',scrollTrigger:{
-          id:'home-process-story',trigger:process,start:'top top+=78',end:()=>`+=${distance()}`,pin:processGrid,scrub:.7,invalidateOnRefresh:true,
-          onUpdate:self=>setActiveStation(Math.round(self.progress*(stations.length-1)))
-        }});
-        processTrigger = railTween.scrollTrigger;
-        ScrollTrigger.refresh();
-      } else {
-        setActiveStation(0);
-        let ticking = false;
-        viewport.addEventListener('scroll',()=>{
-          if(ticking)return;ticking=true;
-          requestAnimationFrame(()=>{
-            ticking=false;
-            const center=viewport.getBoundingClientRect().left+viewport.clientWidth/2;
-            let nearest=0,best=Infinity;
-            stations.forEach((station,i)=>{const r=station.getBoundingClientRect();const d=Math.abs(r.left+r.width/2-center);if(d<best){best=d;nearest=i;}});
-            setActiveStation(nearest);
-          });
-        },{passive:true});
-      }
+      setActiveStation(0);
+      const stationObserver = new IntersectionObserver(entries=>{
+        const visible=entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+        if(visible)setActiveStation(stations.indexOf(visible.target));
+      },{root:null,rootMargin:'-18% 0px -32% 0px',threshold:[.15,.4,.7]});
+      stations.forEach(station=>stationObserver.observe(station));
+      const goToStation=target=>{
+        if(viewport.scrollWidth>viewport.clientWidth){
+          viewport.scrollTo({left:stations[target].offsetLeft-list.offsetLeft,behavior:'smooth'});
+        }else stations[target].scrollIntoView({behavior:'smooth',block:'center'});
+      };
       process.querySelectorAll('[data-process-step]').forEach(button=>button.addEventListener('click',()=>{
         const target=Math.max(0,Math.min(stations.length-1,activeStation+Number(button.dataset.processStep)));
-        if(processTrigger){
-          const ratio=stations.length>1?target/(stations.length-1):0;
-          window.scrollTo({top:processTrigger.start+ratio*(processTrigger.end-processTrigger.start),behavior:'smooth'});
-        } else if(viewport.scrollWidth>viewport.clientWidth){
-          viewport.scrollTo({left:stations[target].offsetLeft-list.offsetLeft,behavior:'smooth'});
-        } else stations[target].scrollIntoView({behavior:'smooth',block:'center'});
+        goToStation(target);
       }));
       viewport.addEventListener('keydown',event=>{
         if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
         event.preventDefault();
         const target=Math.max(0,Math.min(stations.length-1,activeStation+(event.key==='ArrowRight'?1:-1)));
-        if(processTrigger){
-          const ratio=stations.length>1?target/(stations.length-1):0;
-          window.scrollTo({top:processTrigger.start+ratio*(processTrigger.end-processTrigger.start),behavior:'smooth'});
-        } else if(viewport.scrollWidth>viewport.clientWidth){
-          viewport.scrollTo({left:stations[target].offsetLeft-list.offsetLeft,behavior:'smooth'});
-        } else stations[target].scrollIntoView({behavior:'smooth',block:'center'});
+        goToStation(target);
       });
     }
   } catch (error) {
